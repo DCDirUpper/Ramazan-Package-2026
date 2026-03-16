@@ -157,7 +157,7 @@
 </head>
 <body>
   <div class="card">
-    <img class="logo" src="logo.png" alt="Logo" />
+   <img class="logo" src="https://images.seeklogo.com/logo-png/55/1/khyber-pakhtunkhwa-logo-png_seeklogo-552199.png" alt="Logo">
 
     <h1>Government of Khyber Pakhtunkhwa</h1>
     <h2>Ramazan Package Payment to Beneficiaries</h2>
@@ -201,8 +201,8 @@
     function showResult(data) {
       const resultBox = document.getElementById("resultBox");
       resultBox.innerHTML =
-        "<strong>Name:</strong> " + (data.name || "") + "<br><br>" +
-        "<strong>CNIC:</strong> " + (data.cnic || "") + "<br><br>" +
+        "<strong>Name:</strong> " + (data.name || "") + "<br>" +
+        "<strong>CNIC:</strong> " + (data.cnic || "") + "<br>" +
         "<strong>TID:</strong> " + (data.tid || "");
       resultBox.classList.remove("error");
       resultBox.classList.add("success");
