@@ -98,20 +98,28 @@
     }
 
     .result {
+      display: none;
       margin-top: 18px;
       padding: 16px;
       border-radius: 12px;
-      background: #f5f7f8;
-      text-align: left;
-      display: none;
       word-break: break-word;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .success {
+      background: #eef8ee;
+      border: 1px solid #b7dfb7;
+      color: #145a14;
+      text-align: left;
     }
 
     .error {
-      margin-top: 16px;
+      background: #fdeeee;
+      border: 1px solid #efb3b3;
       color: #c62828;
-      font-size: 15px;
-      display: none;
+      text-align: center;
+      font-weight: 700;
     }
 
     @media (max-width: 480px) {
@@ -149,11 +157,7 @@
 </head>
 <body>
   <div class="card">
-    <!-- If your logo is in repo root -->
-  <img class="logo" src="https://images.seeklogo.com/logo-png/55/1/khyber-pakhtunkhwa-logo-png_seeklogo-552199.png" alt="Logo">
-
-    <!-- If your logo is inside assets folder, use this instead -->
-    <!-- <img class="logo" src="assets/logo.png" alt="Logo" /> -->
+    <img class="logo" src="logo.png" alt="Logo" />
 
     <h1>Government of Khyber Pakhtunkhwa</h1>
     <h2>Ramazan Package Payment to Beneficiaries</h2>
@@ -170,40 +174,46 @@
       oninput="this.value=this.value.replace(/[^0-9]/g,'')"
     />
 
-    <button id="searchBtn" onclick="searchRecord()">SEARCH STATUS</button>
+    <button id="searchBtn">SEARCH STATUS</button>
 
-    <div id="error" class="error"></div>
-    <div id="result" class="result"></div>
+    <div id="resultBox" class="result"></div>
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgPJrFvcVNcUQ5gXlk7hPzWCP0AbLBRYtX8ZWGb9D1WRwcvg9GI08LdLamDEqIQfJdBw/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxuKSAuXOgfu5FsqnCVmnHbhTpIiuGSF1Pb62U6NePWbfY-vjyhXUFlU9zbUProLCqPOg/exec";
+
+    function resetResultBox() {
+      const resultBox = document.getElementById("resultBox");
+      resultBox.style.display = "none";
+      resultBox.innerHTML = "";
+      resultBox.classList.remove("success");
+      resultBox.classList.remove("error");
+    }
 
     function showError(message) {
-      const error = document.getElementById("error");
-      const result = document.getElementById("result");
-      result.style.display = "none";
-      error.style.display = "block";
-      error.textContent = message;
+      const resultBox = document.getElementById("resultBox");
+      resultBox.innerHTML = message;
+      resultBox.classList.remove("success");
+      resultBox.classList.add("error");
+      resultBox.style.display = "block";
     }
 
     function showResult(data) {
-      const error = document.getElementById("error");
-      const result = document.getElementById("result");
-      error.style.display = "none";
-      result.style.display = "block";
-      result.innerHTML = `
-      <div class="result success">
-        <strong>Name:</strong> ${data.name}<br><br>
-        <strong>CNIC:</strong> ${data.cnic}<br><br>
-        <strong>TID:</strong> ${data.tid}
-        </div>
-      `;
+      const resultBox = document.getElementById("resultBox");
+      resultBox.innerHTML =
+        "<strong>Name:</strong> " + (data.name || "") + "<br><br>" +
+        "<strong>CNIC:</strong> " + (data.cnic || "") + "<br><br>" +
+        "<strong>TID:</strong> " + (data.tid || "");
+      resultBox.classList.remove("error");
+      resultBox.classList.add("success");
+      resultBox.style.display = "block";
     }
 
     function searchRecord() {
       const input = document.getElementById("searchBox").value.trim();
       const btn = document.getElementById("searchBtn");
+
+      resetResultBox();
 
       if (!input) {
         showError("Please enter CNIC or TID number.");
@@ -220,10 +230,10 @@
         btn.disabled = false;
         btn.textContent = "SEARCH STATUS";
 
-        if (response.success && response.data) {
+        if (response && response.success && response.data) {
           showResult(response.data);
         } else {
-          showError(response.message || "YOU ARE NOT A REGISTERED BENEFICIARY");
+          showError("YOU ARE NOT A REGISTERED BENEFICIARY");
         }
 
         delete window[callbackName];
@@ -247,7 +257,9 @@
       document.body.appendChild(script);
     }
 
-    document.getElementById("searchBox").addEventListener("keypress", function(e) {
+    document.getElementById("searchBtn").addEventListener("click", searchRecord);
+
+    document.getElementById("searchBox").addEventListener("keydown", function(e) {
       if (e.key === "Enter") {
         searchRecord();
       }
