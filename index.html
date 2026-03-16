@@ -25,7 +25,7 @@
       max-width: 460px;
       background: #fff;
       border-radius: 22px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
       overflow: hidden;
       text-align: center;
       border-top: 8px solid #0a6b0a;
@@ -86,7 +86,7 @@
       border: none;
       border-radius: 12px;
       background: #046b04;
-      color: white;
+      color: #fff;
       font-size: 18px;
       font-weight: 700;
       cursor: pointer;
@@ -130,7 +130,8 @@
         font-size: 22px;
       }
 
-      h2, h3 {
+      h2,
+      h3 {
         font-size: 16px;
       }
 
@@ -138,7 +139,8 @@
         font-size: 14px;
       }
 
-      input, button {
+      input,
+      button {
         height: 54px;
         font-size: 16px;
       }
@@ -146,24 +148,27 @@
   </style>
 </head>
 <body>
-
   <div class="card">
-    <img class="logo" src="https://images.seeklogo.com/logo-png/55/1/khyber-pakhtunkhwa-logo-png_seeklogo-552199.png" alt="Logo">
+    <!-- If your logo is in repo root -->
+    <img class="logo" src="logo.png" alt="Logo" />
+
+    <!-- If your logo is inside assets folder, use this instead -->
+    <!-- <img class="logo" src="assets/logo.png" alt="Logo" /> -->
 
     <h1>Government of Khyber Pakhtunkhwa</h1>
     <h2>Ramazan Package Payment to Beneficiaries</h2>
     <h3>DISTRICT UPPER DIR</h3>
 
-    <p> Please enter your 13-digit CNIC  to check your eligibility and find Tracking ID.</p>
+    <p>Please enter your 13-digit CNIC to check your eligibility and find Tracking ID.</p>
 
     <input
-        type="text"
-        id="searchBox"
-        placeholder="Enter CNIC or TID Number"
-        maxlength="13"
-        inputmode="numeric"
-        oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-      />
+      type="text"
+      id="searchBox"
+      placeholder="Enter CNIC or TID Number"
+      inputmode="numeric"
+      maxlength="20"
+      oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+    />
 
     <button id="searchBtn" onclick="searchRecord()">SEARCH STATUS</button>
 
@@ -172,7 +177,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwatW7EEOhkX7idNi93isxTlYY0JkC8yuV9Ko8QnIuj7O-EU2oRUMBpSFjo4Pd3foGLxg/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgPJrFvcVNcUQ5gXlk7hPzWCP0AbLBRYtX8ZWGb9D1WRwcvg9GI08LdLamDEqIQfJdBw/exec";
 
     function showError(message) {
       const error = document.getElementById("error");
@@ -195,7 +200,7 @@
     }
 
     function searchRecord() {
-      const input = document.getElementById("searchInput").value.trim();
+      const input = document.getElementById("searchBox").value.trim();
       const btn = document.getElementById("searchBtn");
 
       if (!input) {
@@ -207,6 +212,7 @@
       btn.textContent = "SEARCHING...";
 
       const callbackName = "jsonp_callback_" + Date.now();
+      const script = document.createElement("script");
 
       window[callbackName] = function(response) {
         btn.disabled = false;
@@ -219,27 +225,31 @@
         }
 
         delete window[callbackName];
-        script.remove();
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
       };
 
-      const script = document.createElement("script");
       script.src = SCRIPT_URL + "?query=" + encodeURIComponent(input) + "&callback=" + callbackName;
 
       script.onerror = function() {
         btn.disabled = false;
         btn.textContent = "SEARCH STATUS";
         showError("Unable to connect to server.");
+        delete window[callbackName];
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
       };
 
       document.body.appendChild(script);
     }
 
-    document.getElementById("searchInput").addEventListener("keypress", function(e) {
+    document.getElementById("searchBox").addEventListener("keypress", function(e) {
       if (e.key === "Enter") {
         searchRecord();
       }
     });
   </script>
-
 </body>
 </html>
