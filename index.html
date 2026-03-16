@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ramazan Package</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #edf0f1;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      overflow: hidden;
+      text-align: center;
+      border-top: 8px solid #0a6b0a;
+      padding: 26px 20px 24px;
+    }
+
+    .logo {
+      width: 90px;
+      height: auto;
+      margin: 0 auto 18px;
+      display: block;
+    }
+
+    h1 {
+      color: #0a6b0a;
+      font-size: 28px;
+      line-height: 1.25;
+      margin: 0 0 12px;
+      font-weight: 700;
+    }
+
+    h2 {
+      color: #4e4e4e;
+      font-size: 18px;
+      line-height: 1.4;
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    h3 {
+      color: #0a6b0a;
+      font-size: 18px;
+      margin: 0 0 24px;
+      font-weight: 700;
+    }
+
+    p {
+      color: #555;
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 0 0 22px;
+    }
+
+    input {
+      width: 100%;
+      height: 58px;
+      border: 1px solid #d5d5d5;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-size: 16px;
+      outline: none;
+      margin-bottom: 16px;
+    }
+
+    button {
+      width: 100%;
+      height: 58px;
+      border: none;
+      border-radius: 12px;
+      background: #046b04;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 12px;
+      background: #f5f7f8;
+      text-align: left;
+      display: none;
+      word-break: break-word;
+    }
+
+    .error {
+      margin-top: 16px;
+      color: #c62828;
+      font-size: 15px;
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+        align-items: flex-start;
+      }
+
+      .card {
+        margin-top: 12px;
+        padding: 22px 16px 20px;
+        border-radius: 18px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      h2, h3 {
+        font-size: 16px;
+      }
+
+      p {
+        font-size: 14px;
+      }
+
+      input, button {
+        height: 54px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <img class="logo" src="https://images.seeklogo.com/logo-png/55/1/khyber-pakhtunkhwa-logo-png_seeklogo-552199.png" alt="Logo">
+
+    <h1>Government of Khyber Pakhtunkhwa</h1>
+    <h2>Ramazan Package Payment to Beneficiaries</h2>
+    <h3>DISTRICT UPPER DIR</h3>
+
+    <p> Please enter your 13-digit CNIC  to check your eligibility and find Tracking ID.</p>
+
+    <input
+        type="text"
+        id="searchBox"
+        placeholder="Enter CNIC or TID Number"
+        maxlength="13"
+        inputmode="numeric"
+        oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+      />
+
+    <button id="searchBtn" onclick="searchRecord()">SEARCH STATUS</button>
+
+    <div id="error" class="error"></div>
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8EKnpv2NwS-g2MGDE6rtETUr-EREAH6MXMqyW-WVqQWgUc6j7A_5wlIhk10o4OrktHw/exec";
+
+    function showError(message) {
+      const error = document.getElementById("error");
+      const result = document.getElementById("result");
+      result.style.display = "none";
+      error.style.display = "block";
+      error.textContent = message;
+    }
+
+    function showResult(data) {
+      const error = document.getElementById("error");
+      const result = document.getElementById("result");
+      error.style.display = "none";
+      result.style.display = "block";
+      result.innerHTML = `
+        <strong>Name:</strong> ${data.name}<br><br>
+        <strong>CNIC:</strong> ${data.cnic}<br><br>
+        <strong>TID:</strong> ${data.tid}
+      `;
+    }
+
+    function searchRecord() {
+      const input = document.getElementById("searchInput").value.trim();
+      const btn = document.getElementById("searchBtn");
+
+      if (!input) {
+        showError("Please enter CNIC or tid number.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "SEARCHING...";
+
+      const callbackName = "jsonp_callback_" + Date.now();
+
+      window[callbackName] = function(response) {
+        btn.disabled = false;
+        btn.textContent = "SEARCH STATUS";
+
+        if (response.success && response.data) {
+          showResult(response.data);
+        } else {
+          showError(response.message || "YOU ARE NOT A REGISTERED BENEFICIARY");
+        }
+
+        delete window[callbackName];
+        script.remove();
+      };
+
+      const script = document.createElement("script");
+      script.src = SCRIPT_URL + "?query=" + encodeURIComponent(input) + "&callback=" + callbackName;
+
+      script.onerror = function() {
+        btn.disabled = false;
+        btn.textContent = "SEARCH STATUS";
+        showError("Unable to connect to server.");
+      };
+
+      document.body.appendChild(script);
+    }
+
+    document.getElementById("searchInput").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        searchRecord();
+      }
+    });
+  </script>
+
+</body>
+</html>
